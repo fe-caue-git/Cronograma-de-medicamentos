@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calculadora de Medicamentos</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background-color: #f4f9ff;
+    }
+    h1 {
+      text-align: center;
+      color: #2c3e50;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+    button {
+      padding: 12px 20px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+    .result {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    ul {
+      padding-left: 20px;
+    }
+    .sugestoes {
+      font-size: 0.9em;
+      color: #666;
+    }
+    .alerta {
+      color: #cc0000;
+    }
+    .radio-group {
+      margin-top: 10px;
+      margin-bottom: 20px;
+    }
+    .radio-group label {
+      font-weight: normal;
+      margin-right: 15px;
+      display: inline-block;
+    }
+    .time-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    .time-group label {
+      font-weight: normal;
+      flex-shrink: 0;
+    }
+    .time-group input[type="time"] {
+      width: auto;
+      flex-grow: 1;
+    }
+  </style>
+</head>
+<body>
+  <h1>💊 Calculadora de Horários de Medicamentos</h1>
+
+  <label for="medicamento">Nome do medicamento:</label>
+  <input list="medicamentos" id="medicamento" placeholder="Ex: Amoxicilina" />
+  <datalist id="medicamentos">
+    <option value="Amoxicilina">
+    <option value="Dipirona">
+    <option value="Ibuprofeno">
+    <option value="Paracetamol">
+    <option value="Azitromicina">
+  </datalist>
+
+  <label for="intervalo">Intervalo entre doses (em horas):</label>
+  <input type="number" id="intervalo" placeholder="Ex: 8" min="1" max="24">
+
+  <label for="dias">Duração do tratamento (em dias):</label>
+  <input type="number" id="dias" placeholder="Ex: 7" min="1" max="30">
+
+  <label for="inicio">Data e hora da primeira dose:</label>
+  <input type="datetime-local" id="inicio">
+
+  <label>Deseja evitar horários de sono?</label><span style="color: #000000a8; font-size: 0.9em;">Atenção ao selecionar o tempo de sono: verifique para não comprometer o intervalo entre as doses.</span>
+  <div class="radio-group">
+    <label><input type="radio" name="evitarSono" value="sim" checked> Sim</label>
+    <label><input type="radio" name="evitarSono" value="nao"> Não</label>
+  </div>
+
+  <div id="sonoConfig" >
+    <div class="time-group">
+      <label for="inicioSono">Início do sono:</label>
+      <input type="time" id="inicioSono" value="22:00" />
+    </div>
+    <div class="time-group">
+      <label for="fimSono">Fim do sono:</label>
+      <input type="time" id="fimSono" value="06:00" />
+    </div>
+    <div class="sugestoes">
+      Ajuste seu horário de sono para que a calculadora evite sugerir doses dentro desse período.
+    </div>
+  </div>
+
+  <button onclick="calcularHorarios()">Calcular Horários</button>
+
+  <div class="result" id="resultado"></div>
+
+  <script>
+    // Mostrar/ocultar configurações de sono conforme opção selecionada
+    const radiosSono = document.querySelectorAll('input[name="evitarSono"]');
+    const sonoConfigDiv = document.getElementById('sonoConfig');
+    radiosSono.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (radio.value === 'sim' && radio.checked) {
+          sonoConfigDiv.style.display = 'block';
+        } else {
+          sonoConfigDiv.style.display = 'none';
+        }
+      });
+    });
+
+    // Inicializa a exibição conforme radio default
+    if (document.querySelector('input[name="evitarSono"]:checked').value === 'sim') {
+      sonoConfigDiv.style.display = 'block';
+    } else {
+      sonoConfigDiv.style.display = 'none';
+    }
+
+    // Sugestões padrão de intervalo por medicamento
+    const sugestoesMedicamentos = {
+      "Amoxicilina": 8,
+      "Dipirona": 6,
+      "Ibuprofeno": 8,
+      "Paracetamol": 6,
+      "Azitromicina": 24
+    };
+
+    const medicamentoInput = document.getElementById('medicamento');
+    const intervaloInput = document.getElementById('intervalo');
+    const sugestaoSpan = document.getElementById('sugestaoIntervalo');
+
+    medicamentoInput.addEventListener('input', () => {
+      const nome = medicamentoInput.value.trim();
+      if (sugestoesMedicamentos[nome]) {
+        intervaloInput.value = sugestoesMedicamentos[nome];
+      }
+    });
+
+    function timeToMinutes(t) {
+      // "HH:MM" -> minutos desde 0:00
+      const [h, m] = t.split(':').map(Number);
+      return h * 60 + m;
+    }
+
+    function calcularHorarios() {
+      const nome = medicamentoInput.value.trim();
+      const intervalo = parseInt(intervaloInput.value);
+      const dias = parseInt(document.getElementById("dias").value);
+      const inicioInput = document.getElementById("inicio").value;
+
+      const evitarSono = document.querySelector('input[name="evitarSono"]:checked').value === 'sim';
+
+      const inicioSono = document.getElementById('inicioSono').value;
+      const fimSono = document.getElementById('fimSono').value;
+
+      const resultado = document.getElementById("resultado");
+
+      if (!nome || !intervalo || !dias || !inicioInput || intervalo < 1 || intervalo > 24 || dias < 1 || dias > 30) {
+        resultado.innerHTML = "<strong class='alerta'>Por favor, preencha todos os campos corretamente.</strong>";
+        return;
+      }
+
+      if (evitarSono) {
+        if (!inicioSono || !fimSono) {
+          resultado.innerHTML = "<strong class='alerta'>Por favor, preencha os horários de sono corretamente.</strong>";
+          return;
+        }
+      }
+
+      const inicio = new Date(inicioInput);
+      const totalHoras = dias * 24;
+      const horarios = [];
+      let doseAtual = new Date(inicio);
+
+      // converte para minutos desde 0h para comparação
+      const sonoInicioMin = evitarSono ? timeToMinutes(inicioSono) : null;
+      const sonoFimMin = evitarSono ? timeToMinutes(fimSono) : null;
+
+      // Função para verificar se uma hora está dentro do período de sono, considerando pernoite
+      function estaNoPeriodoSono(date) {
+        if (!evitarSono) return false;
+
+        const minutos = date.getHours() * 60 + date.getMinutes();
+
+        if (sonoInicioMin < sonoFimMin) {
+          // Sono durante o mesmo dia, ex: 22:00 às 23:30
+          return minutos >= sonoInicioMin && minutos < sonoFimMin;
+        } else {
+          // Sono pernoita, ex: 22:00 às 06:00
+          return minutos >= sonoInicioMin || minutos < sonoFimMin;
+        }
+      }
+
+      while ((doseAtual - inicio) / 3600000 < totalHoras) {
+        if (estaNoPeriodoSono(doseAtual)) {
+          // Ajusta doseAtual para o fim do sono (data com hora fimSono)
+          let novaDose = new Date(doseAtual);
+          novaDose.setHours(Math.floor(sonoFimMin / 60), sonoFimMin % 60, 0, 0);
+
+          // Se novaDose for menor ou igual que doseAtual, incrementa 1 dia para evitar looping
+          if (novaDose <= doseAtual) {
+            novaDose.setDate(novaDose.getDate() + 1);
+          }
+
+          doseAtual = novaDose;
+          // continua o loop com doseAtual ajustada
+          continue;
+        }
+
+        if ((doseAtual - inicio) / 3600000 >= totalHoras) break;
+
+        horarios.push(new Date(doseAtual));
+        doseAtual.setHours(doseAtual.getHours() + intervalo);
+      }
+
+      if (horarios.length === 0) {
+        resultado.innerHTML = "<strong class='alerta'>Não foi possível calcular horários dentro do período definido.</strong>";
+        return;
+      }
+
+      let html = `<h3>Horários para tomar <strong>${nome}</strong>:</h3><ul>`;
+      horarios.forEach((hora, i) => {
+        html += `<li>Dose ${i + 1}: ${hora.toLocaleString("pt-BR")}</li>`;
+      });
+      html += "</ul>";
+
+      if (evitarSono) {
+        html += `<p><em>*Horários entre ${inicioSono} e ${fimSono} foram evitados para respeitar o sono.</em></p>`;
+      }
+
+      resultado.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
