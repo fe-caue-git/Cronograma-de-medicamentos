@@ -1,24 +1,45 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Cronogrma de Medicamentos</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 40px;
+      margin: 0;
       background-color: #f4f9ff;
     }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      /* evita zoom no iPhone */
+    }
+
     h1 {
       text-align: center;
       color: #2c3e50;
     }
+
     label {
       display: block;
       margin-top: 15px;
       font-weight: bold;
     }
-    input, select {
+
+    input,
+    select {
       width: 100%;
       padding: 10px;
       margin-top: 5px;
@@ -26,6 +47,7 @@
       border: 1px solid #ccc;
       border-radius: 4px;
     }
+
     button {
       padding: 12px 20px;
       background-color: #28a745;
@@ -35,112 +57,133 @@
       cursor: pointer;
       width: 100%;
     }
+
     button:hover {
       background-color: #218838;
     }
+
     .result {
       margin-top: 30px;
       padding: 20px;
       background-color: #ffffff;
-      border: 1px solid #ccc;
-      border-radius: 5px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
     }
+
     ul {
       padding-left: 20px;
     }
+
     .sugestoes {
       font-size: 0.9em;
       color: #666;
     }
+
     .alerta {
       color: #cc0000;
     }
+
     .radio-group {
       margin-top: 10px;
       margin-bottom: 20px;
     }
+
     .radio-group label {
       font-weight: normal;
       margin-right: 15px;
       display: inline-block;
     }
+
     .time-group {
       display: flex;
       gap: 10px;
       align-items: center;
-      margin-bottom: 15px;
+      flex-wrap: wrap;
+      /* IMPORTANTE */
     }
+
     .time-group label {
-      font-weight: normal;
-      flex-shrink: 0;
+      width: 100%;
     }
-    .time-group input[type="time"] {
-      width: auto;
-      flex-grow: 1;
+
+    .time-group input {
+      width: 100%;
     }
+
     .aviso-sono {
-    background-color: #fff3cd; /* amarelo claro */
-    color: #856404; /* texto mais escuro */
-    border: 1px solid #ffeeba;
-    padding: 10px 15px;
-    border-radius: 5px;
-    margin-top: 8px;
-    font-size: 0.95em;
-    font-weight: 500;
-}
+      background-color: #fff3cd;
+      color: #856404;
+      border-left: 5px solid #ffc107;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+      font-size: 0.95em;
+    }
+
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      .container {
+        padding: 30px;
+      }
+    }
   </style>
 </head>
+
 <body>
-  <h1>💊 Cronograma de Medicamentos</h1>
+  <div class="container">
+    <h1>💊 Cronograma de Medicamentos</h1>
 
-  <label for="medicamento">Nome do medicamento:</label>
-  <input list="medicamentos" id="medicamento" placeholder="Ex: Amoxicilina" />
-  <datalist id="medicamentos">
-    <option value="Amoxicilina">
-    <option value="Dipirona">
-    <option value="Ibuprofeno">
-    <option value="Paracetamol">
-    <option value="Azitromicina">
-  </datalist>
+    <label for="medicamento">Nome do medicamento:</label>
+    <input list="medicamentos" id="medicamento" placeholder="Ex: Amoxicilina" />
+    <datalist id="medicamentos">
+      <option value="Amoxicilina">
+      <option value="Dipirona">
+      <option value="Ibuprofeno">
+      <option value="Paracetamol">
+      <option value="Azitromicina">
+    </datalist>
 
-  <label for="intervalo">Intervalo entre doses (em horas):</label>
-  <input type="number" id="intervalo" placeholder="Ex: 8" min="1" max="24">
+    <label for="intervalo">Intervalo entre doses (em horas):</label>
+    <input type="number" id="intervalo" placeholder="Ex: 8" min="1" max="24">
 
-  <label for="dias">Duração do tratamento (em dias):</label>
-  <input type="number" id="dias" placeholder="Ex: 7" min="1" max="30">
+    <label for="dias">Duração do tratamento (em dias):</label>
+    <input type="number" id="dias" placeholder="Ex: 7" min="1" max="30">
 
-  <label for="inicio">Data e hora da primeira dose:</label>
-  <input type="datetime-local" id="inicio">
+    <label for="inicio">Data e hora da primeira dose:</label>
+    <input type="datetime-local" id="inicio">
 
-  <label>Deseja evitar horários de sono?</label>
+    <label>Deseja evitar horários de sono?</label>
 
-<div class="aviso-sono">
-  ⚠️ Atenção ao selecionar o tempo de sono: verifique para não comprometer o intervalo entre as doses.
-</div>
-  <div class="radio-group">
-    <label><input type="radio" name="evitarSono" value="sim" checked> Sim</label>
-    <label><input type="radio" name="evitarSono" value="nao"> Não</label>
+    <div class="aviso-sono">
+      ⚠️ Atenção ao selecionar o tempo de sono: verifique para não comprometer o intervalo entre as doses.
+    </div>
+    <div class="radio-group">
+      <label><input type="radio" name="evitarSono" value="sim" checked> Sim</label>
+      <label><input type="radio" name="evitarSono" value="nao"> Não</label>
+    </div>
+
+    <div id="sonoConfig">
+      <div class="sugestoes">
+        Ajuste seu horário de sono para que evite sugerir doses dentro desse período.
+      </div>
+      <div class="time-group">
+        <label for="inicioSono">Início do sono:</label>
+        <input type="time" id="inicioSono" value="22:00" />
+      </div>
+      <div class="time-group">
+        <label for="fimSono">Fim do sono:</label>
+        <input type="time" id="fimSono" value="06:00" />
+      </div>
+
+    </div>
+
+    <button onclick="calcularHorarios()">Calcular Horários</button>
+
+    <div class="result" id="resultado"></div>
   </div>
-
-  <div id="sonoConfig" >
-    <div class="sugestoes">
-      Ajuste seu horário de sono para que evite sugerir doses dentro desse período.
-    </div>
-    <div class="time-group">
-      <label for="inicioSono">Início do sono:</label>
-      <input type="time" id="inicioSono" value="22:00" />
-    </div>
-    <div class="time-group">
-      <label for="fimSono">Fim do sono:</label>
-      <input type="time" id="fimSono" value="06:00" />
-    </div>
-    
-  </div>
-
-  <button onclick="calcularHorarios()">Calcular Horários</button>
-
-  <div class="result" id="resultado"></div>
-
   <script>
     // Mostrar/ocultar configurações de sono conforme opção selecionada
     const radiosSono = document.querySelectorAll('input[name="evitarSono"]');
@@ -278,5 +321,6 @@
     }
   </script>
 </body>
+
 </html>
 
