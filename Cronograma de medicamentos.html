@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Calculadora de Medicamentos</title>
+  <title>Cronogrma de Medicamentos</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -78,10 +78,20 @@
       width: auto;
       flex-grow: 1;
     }
+    .aviso-sono {
+    background-color: #fff3cd; /* amarelo claro */
+    color: #856404; /* texto mais escuro */
+    border: 1px solid #ffeeba;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-top: 8px;
+    font-size: 0.95em;
+    font-weight: 500;
+}
   </style>
 </head>
 <body>
-  <h1>💊 Calculadora de Horários de Medicamentos</h1>
+  <h1>💊 Cronograma de Medicamentos</h1>
 
   <label for="medicamento">Nome do medicamento:</label>
   <input list="medicamentos" id="medicamento" placeholder="Ex: Amoxicilina" />
@@ -102,13 +112,20 @@
   <label for="inicio">Data e hora da primeira dose:</label>
   <input type="datetime-local" id="inicio">
 
-  <label>Deseja evitar horários de sono?</label><span style="color: #000000a8; font-size: 0.9em;">Atenção ao selecionar o tempo de sono: verifique para não comprometer o intervalo entre as doses.</span>
+  <label>Deseja evitar horários de sono?</label>
+
+<div class="aviso-sono">
+  ⚠️ Atenção ao selecionar o tempo de sono: verifique para não comprometer o intervalo entre as doses.
+</div>
   <div class="radio-group">
     <label><input type="radio" name="evitarSono" value="sim" checked> Sim</label>
     <label><input type="radio" name="evitarSono" value="nao"> Não</label>
   </div>
 
   <div id="sonoConfig" >
+    <div class="sugestoes">
+      Ajuste seu horário de sono para que evite sugerir doses dentro desse período.
+    </div>
     <div class="time-group">
       <label for="inicioSono">Início do sono:</label>
       <input type="time" id="inicioSono" value="22:00" />
@@ -117,9 +134,7 @@
       <label for="fimSono">Fim do sono:</label>
       <input type="time" id="fimSono" value="06:00" />
     </div>
-    <div class="sugestoes">
-      Ajuste seu horário de sono para que a calculadora evite sugerir doses dentro desse período.
-    </div>
+    
   </div>
 
   <button onclick="calcularHorarios()">Calcular Horários</button>
@@ -264,3 +279,4 @@
   </script>
 </body>
 </html>
+
